@@ -16,6 +16,8 @@
 #include <ifaddrs.h>
 #import <dlfcn.h>
 #import <SystemConfiguration/SystemConfiguration.h>
+//获取当前wifi名称的
+#import <SystemConfiguration/CaptiveNetwork.h>
 @implementation ZCAchieveIP
 
 +(NSString *)getWiFiIPAddress
@@ -40,6 +42,20 @@
         freeifaddrs(addrs);
     }
     return nil;
+}
++(id)fetchSSIDInfo
+{
+    NSArray *ifs = (__bridge NSArray *)(CNCopySupportedInterfaces());
+    NSLog(@"%s: Supported interfaces: %@", __func__, ifs);
+    id info = nil;
+    for (NSString *ifnam in ifs) {
+        info = (__bridge id)CNCopyCurrentNetworkInfo((__bridge CFStringRef)ifnam);
+        NSLog(@"%s: %@ => %@", __func__, ifnam, info);
+        if (info && [info count]) {
+            break;
+        }
+    }
+    return info;
 }
 
 @end
